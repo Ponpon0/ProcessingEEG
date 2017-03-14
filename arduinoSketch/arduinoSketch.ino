@@ -1,53 +1,35 @@
-//includes the stepper motors librairy
-#include <Stepper.h>
+#include <Servo.h>
 
-//number of steps it takes to make one revolution for the motor
-const int stepsPerRevolution = 200;
-//speed of rotation of the motor
-int SPEED = 10;
+Servo myservo;
+int servoPin = 9;
+int pos = 0;
 
+int pulse = 1500;
 int incomingVal[5] = {0}; // Data received from the serial port
 
 
 int ledPin = 13; // Set the pin to digital I/O 13
+int ledPin2 = 12;
 int msgID = 0;
 int msgState = 0;
 int msgType;
 int msg;
 boolean inSink = false;
 
-//counts the number of steps the motor has turned, starts from the bottom
-//(from 0 to 32 to grow the tree, from 32 to 0 to make it go down)
-int stepCount = 0;
-//thus, sets the up and down value to be reached
-int stepCountDown = 0;
-int stepCountUp = 32;
-
-
-//holds the tree state
-boolean isUp = false;
-// initializes the stepper library on pins 4 through 7
-Stepper myStepper(stepsPerRevolution, 4, 5, 6, 7);
-
 void setup() {
   pinMode(ledPin, OUTPUT); // Set pin as OUTPUT
-  //sets pins 2 and 3 to outputs : they are connected to the two EN of the motors
-  pinMode(2, OUTPUT);
-  pinMode(3, OUTPUT);
-  //sets the motors to a state of HIGH, so that the movement starts right away
-  digitalWrite(2, HIGH);
-  digitalWrite(3, HIGH);
+  pinMode(ledPin2, OUTPUT);
+  myservo.attach(servoPin);
+
   Serial.begin(9600); // Start serial communication at 9600 bps
   if (!Serial) {
     Serial.print("Connecting");
   }
-
   // put your main code here, to run repeatedly:
   //while (!Serial.available());
 }
 
 void loop() {
-
 }
 
 void serialEvent() {
@@ -78,19 +60,23 @@ void serialEvent() {
 
 void checkLED() {
   if (msgType == '0') { //LED message
-    if (msg == '1')
+    if (msg == '1' || msg == '2')
     { // If 1 was received
-      digitalWrite(ledPin, HIGH); // turn the LED on
+      digitalWrite(ledPin, HIGH);
+      digitalWrite(ledPin2, HIGH);// turn the LED on
       //delay(100);
       //digitalWrite(ledPin, LOW);
     } else if (msg == '0') {
-      digitalWrite(ledPin, LOW); // otherwise turn it off
-    } else if (msg == '2') {
+      digitalWrite(ledPin, LOW);
+      digitalWrite(ledPin2, LOW);// otherwise turn it off
+    } else if (msg == '3') {
       digitalWrite(ledPin, HIGH); // turn the LED on
       delay(500);
       digitalWrite(ledPin, LOW);
       delay(500);
       digitalWrite(ledPin, HIGH); // turn the LED on
+      delay(500);
+      digitalWrite(ledPin, LOW); // turn the LED on
     }
     delay(10); // Wait 10 milliseconds for next reading
   }
@@ -100,34 +86,13 @@ void checkMotor() {
   if (msgType == '0') { //Motor Message
     //if there is enough light and the tree is not grown
     if (msg == '1') {
-      //then make the tree grow:
-      //1. sets the speed
-      myStepper.setSpeed(SPEED);
-      //and until it has reached the number of steps for the tree to be up
-      while (stepCount < stepCountUp) {
-        //makes the motor pull on the tree’s strings (by rotating it clockwise)
-        myStepper.step(++stepCount);
-      }
-      //if number of steps is equal or above the limit, stops motor
-      myStepper.step(0);
-      //and sets the tree to be now up
-      isUp = true;
+      myservo.write(100);
+      Serial.print("GO!");
     } else if (msg == '2') {
-      //if number of steps is equal or below the limit, stops motor
-      //myStepper.step(0);
-      //if there is not enough light and the tree is up
-      //    //brings the tree down, doing the inverse of before:
-      //    //sets speed
-      //    myStepper.setSpeed(SPEED);
-      //    //and until it has reached the number of steps for the tree to be down
-      //    while (stepCount > stepCountDown) {
-      //      //makes the motor release the strings of the tree (by rotating it counter clockwise)
-      //      myStepper.step(-(-stepCount));
-      //}
-      //if number of steps is equal or below the limit, stops motor
-      myStepper.step(0);
-      //and sets the tree to now down
-      isUp = false;
+      myservo.write(85);
+      Serial.print("STOOOOP");
+    } else if (msg == '0') {
+       myservo.write(90);
     }
   }
 }
