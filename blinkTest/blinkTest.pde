@@ -18,7 +18,9 @@ public int time = 0;
 public int delay = 0;
 public int lastPrint = 0;
 public int currentState = 0; //0 = neutral, 1 for push, and 2 for Meditation
-
+public int msgID = '0'; //goes from 0 to 255 before restarting again
+public char msgType = '0'; //message triggering LED for now
+public char msg;
 OscP5 oscP5;
 Serial myPort;  
 
@@ -30,7 +32,7 @@ void setup() {
   String portName = Serial.list()[1]; //change the 0 to a 1 or 2 etc. to match your port
   myPort = new Serial(this, portName, 9600);
 
-  /* start oscP5, listening for incoming messages on port 7400
+  /* start oscP5, listening fosr incoming messages on port 7400
    make sure this matches the port in Mind Your OSCs */
   oscP5 = new OscP5(this, 7400);
 
@@ -39,9 +41,9 @@ void setup() {
   //oscP5.plug(this,"updateExc","/AFF/Excitement");
   //oscP5.plug(this, "updateExcLon", "/COG/PUSH");
   //oscP5.plug(this, "updateMed", "/AFF/Meditation");
-  oscP5.plug(this, "updateLeft", "/EXP/WINK_LEFT");
+  oscP5.plug(this, "updateLeft", "/EXP/HORIEYE");
   oscP5.plug(this, "updateRight", "/EXP/WINK_RIGHT");
-  //oscP5.plug(this, "updateBlink", "/EXP/BLINK");
+  oscP5.plug(this, "updateBlink", "/EXP/EYEBROW");
   
 }
 
@@ -68,9 +70,15 @@ public void updateLeft(float theValue) {
   left = theValue;
   //println(fru);
   
-  if (left == 1) {
-   myPort.write('0');
-   println("0");
+  if (left == 1 && msg != 2) {
+   myPort.write('$');
+   myPort.write(char(msgID));
+   println(msgID);
+   myPort.write(msgType);
+   msg = '2';
+   myPort.write(msg);
+   println(msg);
+   msgID++;
   }
 }
 
@@ -79,18 +87,30 @@ public void updateRight(float theValue) {
   right = theValue;
   //println(fru);
   
-  if (right == 1) {
-   myPort.write('1');
-   println("1");
+  if (right == 1 && msg != 1) {
+   myPort.write('$');
+   myPort.write(char(msgID));
+   println(msgID);
+   myPort.write(msgType);
+   msg = '1';
+   myPort.write(msg);
+   println(msg);
+      msgID++;
   }
 }
 
-//public void updateBlink(float theValue) {
-  //blink = theValue;
+public void updateBlink(float theValue) {
+  blink = theValue;
   //println(blink);
   
-  //if (blink == 1) {
-   //myPort.write('2');
-   //println("2");
-  //}
-//}
+  if (blink == 1 && msg != 0) {
+   myPort.write('$');
+   myPort.write(char(msgID));
+   println(msgID);
+   myPort.write(msgType);
+   msg = '0';
+   myPort.write(msg);
+   println(msg);
+   msgID++;
+  }
+}
