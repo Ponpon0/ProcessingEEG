@@ -29,21 +29,26 @@ void setup() {
   frameRate(30);
   smooth();
   
+  for (int i = 0; i < Serial.list().length; i++) {
+    println(Serial.list()[i]);
+  }
+  
   String portName = Serial.list()[1]; //change the 0 to a 1 or 2 etc. to match your port
+  
   myPort = new Serial(this, portName, 9600);
 
   /* start oscP5, listening fosr incoming messages on port 7400
    make sure this matches the port in Mind Your OSCs */
-  oscP5 = new OscP5(this, 7400);
+  //oscP5 = new OscP5(this, 7400);
 
   // plug the OSC messages for the Affectiv values
   //oscP5.plug(this,"updateEngBor","/AFF/Engaged/Bored");
   //oscP5.plug(this,"updateExc","/AFF/Excitement");
   //oscP5.plug(this, "updateExcLon", "/COG/PUSH");
   //oscP5.plug(this, "updateMed", "/AFF/Meditation");
-  oscP5.plug(this, "updateLeft", "/EXP/HORIEYE");
-  oscP5.plug(this, "updateRight", "/EXP/WINK_RIGHT");
-  oscP5.plug(this, "updateBlink", "/EXP/EYEBROW");
+  //oscP5.plug(this, "updateLeft", "/EXP/HORIEYE");
+  //oscP5.plug(this, "updateRight", "/EXP/WINK_RIGHT");
+  //oscP5.plug(this, "updateBlink", "/EXP/EYEBROW");
   
 }
 
@@ -55,6 +60,19 @@ void draw() {
   fill(0, 10);
   rectMode(CORNER);
   rect(0, 0, width, height);
+}
+
+void mousePressed() {
+  updateLeft(1);
+  println("MousePressed");
+}
+
+void mouseReleased() {
+  updateRight(1);
+}
+
+void keyPressed() {
+  updateBlink(1);
 }
 
 void drawCircle(float affVal, int circleNo) {
