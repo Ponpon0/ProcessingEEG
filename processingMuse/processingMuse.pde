@@ -35,7 +35,7 @@ void setup() {
   background(0);
 
   //for (int i = 0; i < Serial.list().length; i++) {
-    //println(Serial.list()[i]);
+  //println(Serial.list()[i]);
   //}
 
   String portName = Serial.list()[13]; //change the 0 to a 1 or 2 etc. to match your port
@@ -59,10 +59,10 @@ void oscEvent(OscMessage msg) {
       print("Mellow not receiving correctly", "\n");
     } else if (msg.get(0).floatValue() > 0.70) {
       print("Mellow score: ", msg.get(0).floatValue(), "\n");
-      turnOn();
+      //turnOn();
     } else {
-        shutOff();    
-     }
+      //shutOff();
+    }
   }
 
   if (msg.checkAddrPattern("/muse/elements/experimental/concentration")==true) {  
@@ -73,7 +73,7 @@ void oscEvent(OscMessage msg) {
       turnOn();
     } else {
       shutOff();
-    print("Concentration score: ", msg.get(0).floatValue(), "\n");
+      print("Concentration score: ", msg.get(0).floatValue(), "\n");
     }
   }
 
@@ -86,27 +86,34 @@ void oscEvent(OscMessage msg) {
     else if (msg.get(0).floatValue() == 3)
       print("connection status: BAD", "\n");
   }
+
+  //if (msg.checkAddrPattern("/muse/acc")==true) {
+  //  for (int i = 0; i < 3; i++) {
+  //    //float firstValue = msg.get(0).floatValue();
+  //    print("accelerometer values ", i, ": ", msg.get(i).floatValue(), "\n");
+  //  }
+  //}
 }
 
 void turnOn() {
   myPort.write('$');
   myPort.write(char(msgID));
-  println(msgID);
+  //println(msgID);
   myPort.write(msgType);
   msg = '1';
   myPort.write(msg);
-  println(msg);
+  //println(msg);
   msgID++;
 }
 
 void shutOff() {
   myPort.write('$');
   myPort.write(char(msgID));
-  println(msgID);
+  //println(msgID);
   myPort.write(msgType);
   msg = '0';
   myPort.write(msg);
-  println(msg);
+  //println(msg);
   msgID++;
 }
 
