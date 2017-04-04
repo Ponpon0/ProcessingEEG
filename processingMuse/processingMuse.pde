@@ -14,6 +14,9 @@ public char msg;
 
 
 boolean debug = false;
+boolean beingused = false;
+float Xsize = 100;
+float Ysize = 100;
 
 //OSC PARAMETERS & PORTS
 int recvPort = 5000;
@@ -25,7 +28,7 @@ int WIDTH = 100;
 int HEIGHT = 100;
 
 void setup() {
-  size(100, 100);
+  size(500, 500);
   frameRate(60);
 
   /* start oscP5, listening for incoming messages at recvPort */
@@ -34,17 +37,23 @@ void setup() {
 
   background(0);
 
-  //for (int i = 0; i < Serial.list().length; i++) {
-  //println(Serial.list()[i]);
-  //}
+  for (int i = 0; i < Serial.list().length; i++) {
+    println(Serial.list()[i]);
+  }
 
-  String portName = Serial.list()[13]; //change the 0 to a 1 or 2 etc. to match your port
+  String portName = Serial.list()[1]; //change the 0 to a 1 or 2 etc. to match your port
 
   myPort = new Serial(this, portName, 9600);
 }
 
 void draw() {
   background(0);
+
+  //if (beingused) {
+  //  fill(255);
+  //  ellipse(250, 250, Xsize, Ysize/3);
+  //}
+  //println(beingused);
 }
 
 void oscEvent(OscMessage msg) {
@@ -54,45 +63,93 @@ void oscEvent(OscMessage msg) {
     println(msg);
   }
 
-  if (msg.checkAddrPattern("/muse/elements/experimental/mellow")==true) {  
-    if (msg.get(0).floatValue() == 0.0 || msg.get(0).floatValue() == 1.0) {
-      print("Mellow not receiving correctly", "\n");
-    } else if (msg.get(0).floatValue() > 0.70) {
-      print("Mellow score: ", msg.get(0).floatValue(), "\n");
-      //turnOn();
-    } else {
-      //shutOff();
-    }
-  }
+  //if (msg.checkAddrPattern("/muse/elements/experimental/mellow")==true) {  
+  //  if (msg.get(0).floatValue() == 0.0 || msg.get(0).floatValue() == 1.0) {
+  //    print("Mellow not receiving correctly", "\n");
+  //  } else if (msg.get(0).floatValue() > 0.70) {
+  //    print("Mellow score: ", msg.get(0).floatValue(), "\n");
+  //    //turnOn();
+  //  } else {
+  //    //turnOff();
+  //  }
+  //}
 
-  if (msg.checkAddrPattern("/muse/elements/experimental/concentration")==true) {  
-    if (msg.get(0).floatValue() == 0.0 || msg.get(0).floatValue() == 1.0) {
-      print("Concentration not receiving correctly", "\n");
-    } else if (msg.get(0).floatValue() > 0.60) {
-      print("Concentration score: ", msg.get(0).floatValue(), "\n");
+  if (msg.checkAddrPattern("/muse/elements/touching_forehead")==true) {  
+    if (msg.get(0).intValue() == 1.0) {
+      //print("placed on the head", "\n");
       turnOn();
+      beingused = true;
     } else {
-      shutOff();
-      print("Concentration score: ", msg.get(0).floatValue(), "\n");
+      turnOff();
+      beingused = false;
+      //print("NOT IN PLACE", "\n");
+    }
+  }
+  
+  if (msg.checkAddrPattern("/muse/elements/blink")==true) {  
+    if (msg.get(0).intValue() == 1.0) {
+      print("BLINKING", "\n");
+    }
+  }
+  
+    if (msg.checkAddrPattern("/muse/elements/jaw_clench")==true) {  
+    if (msg.get(0).intValue() == 1.0) {
+      print("JAWS", "\n");
     }
   }
 
-
-  if (msg.checkAddrPattern("/muse/elements/horseshoe")==true) {
-    if (msg.get(0).floatValue() == 1)
-      print("connection status: Good!", "\n");
-    else if (msg.get(0).floatValue() == 2)
-      print("connection status: OK", "\n");
-    else if (msg.get(0).floatValue() == 3)
-      print("connection status: BAD", "\n");
+  if (msg.checkAddrPattern("/muse/batt")==true) {
+    if (msg.get(0).intValue() < 1500) {
+      print("LOW BATTERY", "\n");
+    }
   }
 
   //if (msg.checkAddrPattern("/muse/acc")==true) {
-  //  for (int i = 0; i < 3; i++) {
-  //    //float firstValue = msg.get(0).floatValue();
-  //    print("accelerometer values ", i, ": ", msg.get(i).floatValue(), "\n");
+  //  //float firstValue = msg.get(0).floatValue();
+  //  print("accelerometer X value", msg.get(0).floatValue(), "\n");
+  //}
+
+  //if (msg.checkAddrPattern("/muse/elements/experimental/concentration")==true) {  
+  //  if (msg.get(0).floatValue() == 0.0 || msg.get(0).floatValue() == 1.0) {
+  //    print("Concentration not receiving correctly", "\n");
+  //  } else if (msg.get(0).floatValue() > 0.60) {
+  //    print("Concentration score: ", msg.get(0).floatValue(), "\n");
+  //    turnOn();
+  //  } else {
+  //    turnOff();
+  //    print("Concentration score: ", msg.get(0).floatValue(), "\n");
   //  }
   //}
+
+
+  //if (msg.checkAddrPattern("/muse/elements/horseshoe")==true) {
+  //  if (msg.get(0).floatValue() == 1)
+  //    print("connection status: Good!", "\n");
+  //  else if (msg.get(0).floatValue() == 2)
+  //    print("connection status: OK", "\n");
+  //  else if (msg.get(0).floatValue() == 3)
+  //    print("connection status: BAD", "\n");
+  //}
+
+  if (msg.checkAddrPattern("/muse/acc")==true) {
+    //float firstValue = msg.get(0).floatValue();
+    //print("accelerometer X value", msg.get(0).floatValue(), "\n");
+    Xsize = msg.get(0).floatValue();
+  }
+
+  if (msg.checkAddrPattern("/muse/acc")==true) {
+    //float firstValue = msg.get(0).floatValue();
+    //print("accelerometer Y value", msg.get(1).floatValue(), "\n");
+    Ysize = msg.get(1).floatValue();
+  }
+
+  
+  //  
+  //if (msg.checkAddrPattern("/muse/acc")==true) {
+  ////float firstValue = msg.get(0).floatValue();
+  //print("accelerometer Z value", msg.get(2).floatValue(), "\n");
+  // }
+  //
 }
 
 void turnOn() {
@@ -106,7 +163,7 @@ void turnOn() {
   msgID++;
 }
 
-void shutOff() {
+void turnOff() {
   myPort.write('$');
   myPort.write(char(msgID));
   //println(msgID);
@@ -121,7 +178,7 @@ void shutOff() {
 // test functions
 
 void mousePressed() {
-  shutOff();
+  turnOff();
   println("MousePressed");
 }
 
